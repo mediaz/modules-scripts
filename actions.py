@@ -52,6 +52,11 @@ parser.add_argument('--build-all',
                     default=False,
                     help="Build all modules.",)
 
+parser.add_argument('--scripts-dir',
+                    action='store',
+                    required=True,
+                    help="Directory of the scripts.")
+
 MODULES = {}
 
 def custom_run(args, dry_run):
@@ -137,7 +142,10 @@ if __name__ == "__main__":
 
     modules_to_release = set()
     if args.build_all:
-        modules_to_release.update(MODULES_FLAT.keys())
+        for module_name, module_info in MODULES_FLAT.items():
+            if "exclude_from_all" in module_info and module_info["exclude_from_all"]:
+                continue
+            modules_to_release.add(module_name)
     else:
         latest_tag = get_latest_release_tag()
         logger.info(f"Latest release tag: {latest_tag}")
@@ -166,7 +174,7 @@ if __name__ == "__main__":
     ok = True
     for module_name in modules_to_release:
         module_info = MODULES_FLAT[module_name]
-        proc_args = ["python", "release.py",
+        proc_args = ["python", f"{args.scripts_dir}/release.py",
                       "make", "--build-number", args.build_number, 
                       "--module-name", module_name,
                       "--cmake-build-dir", args.cmake_build_dir, 
@@ -182,7 +190,7 @@ if __name__ == "__main__":
     
     # Upload releases
     logger.info(f"Uploading releases of modules {modules_to_release} to {args.repo_url}")
-    re = custom_run(["python", "release.py", "upload", "--cloned-release-repo", args.cloned_release_repo_dir, 
+    re = custom_run(["python", f"{args.scripts_dir}/release.py", "upload", "--cloned-release-repo", args.cloned_release_repo_dir, 
               "--repo-url", args.repo_url, "--repo-org", args.repo_org, "--repo-name", args.repo_name],
              args.dry_run)
     if re.returncode != 0:
