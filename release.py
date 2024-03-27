@@ -212,6 +212,8 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
         if "DIST_TARGET_DIR" in os.environ:
             dist_target_dir = os.environ["DIST_TARGET_DIR"]
             logger.info(f"Copying {artifact} to {dist_target_dir}")
+            if not os.path.exists(dist_target_dir):
+                os.makedirs(dist_target_dir)
             shutil.copy(artifact, dist_target_dir)
 
         logger.info(f"Updating index file for {module_name} {module_version}")
