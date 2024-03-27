@@ -194,7 +194,7 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
     for root, dirs, files in os.walk("Releases"):
         for file in files:
             if file.endswith(".zip"):
-                zip_files.append(os.path.join(root, file))
+                zip_files.append(f"./{os.path.join(root, file)}")
     logger.debug(f"Found zip files: {zip_files}")
     logger.info(f"GitHub Release: Pushing release artifacts to repo {repo_org_name}")
     artifacts = zip_files
