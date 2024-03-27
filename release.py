@@ -180,8 +180,16 @@ def make_release(args):
     zip_name = f"{module_name}-{module_version}"
     shutil.make_archive(zip_name, "zip", "Stage")
     os.makedirs("Releases", exist_ok=True)
-    shutil.move(f"{zip_name}.zip", os.path.join("Releases", f"{zip_name}.zip"))
-    logger.info(f"Created release zip: {os.path.join('Releases', f'{zip_name}.zip')}")
+    zip_filename = f"{zip_name}.zip"
+    # Check DIST_TARGET_DIR
+    if "DIST_TARGET_DIR" in os.environ:
+        dist_target_dir = os.environ["DIST_TARGET_DIR"]
+        logger.info(f"Copying {zip_filename} to {dist_target_dir}")
+        if not os.path.exists(dist_target_dir):
+            os.makedirs(dist_target_dir)
+        shutil.copy(zip_filename, dist_target_dir)
+    shutil.move(zip_filename, os.path.join("Releases", zip_filename))
+    logger.info(f"Created release zip: {os.path.join('Releases', zip_filename)}")
 
     logger.info(f"Cleaning up")
     shutil.rmtree("Stage")
@@ -194,7 +202,7 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
     for root, dirs, files in os.walk("Releases"):
         for file in files:
             if file.endswith(".zip"):
-                zip_files.append(f".{os.path.sep}{os.path.join(root, file)}")
+                zip_files.append(os.path.join(root, file))
     logger.debug(f"Found zip files: {zip_files}")
     logger.info(f"GitHub Release: Pushing release artifacts to repo {repo_org_name}")
     artifacts = zip_files
@@ -206,14 +214,6 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
         module_name = filename.split("-")[0]
         module_version = filename.split("-")[1].split(".zip")[0]
         tag = f"{module_name}-{module_version}"
-
-        # Check DIST_TARGET_DIR
-        if "DIST_TARGET_DIR" in os.environ:
-            dist_target_dir = os.environ["DIST_TARGET_DIR"]
-            logger.info(f"Copying {artifact} to {dist_target_dir}")
-            if not os.path.exists(dist_target_dir):
-                os.makedirs(dist_target_dir)
-            shutil.copy(artifact, dist_target_dir)
 
         logger.info(f"Updating index file for {module_name} {module_version}")
         os.makedirs(f"{module_name}", exist_ok=True)
