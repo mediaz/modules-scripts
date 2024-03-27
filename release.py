@@ -208,6 +208,12 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
         module_version = filename.split("-")[1].split(".zip")[0]
         tag = f"{module_name}-{module_version}"
 
+        # Check DIST_TARGET_DIR
+        if "DIST_TARGET_DIR" in os.environ:
+            dist_target_dir = os.environ["DIST_TARGET_DIR"]
+            logger.info(f"Copying {artifact} to {dist_target_dir}")
+            shutil.copy(artifact, dist_target_dir)
+
         logger.info(f"Updating index file for {module_name} {module_version}")
         os.makedirs(f"{module_name}", exist_ok=True)
         index = { "name": module_name, "releases": [] }
