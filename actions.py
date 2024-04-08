@@ -178,7 +178,7 @@ if __name__ == "__main__":
                       "make", "--build-number", args.build_number, 
                       "--module-name", module_name,
                       "--cmake-build-dir", args.cmake_build_dir, 
-                      "--module-dir", f"{'Plugins' if module_name in MODULES['plugins'] else 'Subsystems'}/{module_info['path']}"]
+                      "--module-dir", f"{module_info['path']}"]
         logger.info(f"Creating module release for {module_name} with command: {' '.join(proc_args)}")
         re = custom_run(proc_args, args.dry_run)
         if re.returncode != 0:
