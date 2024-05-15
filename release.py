@@ -63,6 +63,12 @@ upload.add_argument('--dry-run',
                     help="Dry run. Do not upload anything to GitHub. Only print the commands that would be executed.",
                     default=False)
 
+upload.add_argument('--nodos-sdk-dir',
+                    action='store',
+                    required=False,
+                    help="The path to the Nodos SDK directory.")
+
+
 def custom_run(args, dry_run):
     if dry_run:
         logger.info("Dry run: %s" % " ".join(args))
@@ -70,8 +76,7 @@ def custom_run(args, dry_run):
     return run(args, env=os.environ.copy())
 
 
-def get_api_version(api_header, api_name):
-    sdk_dir = os.getenv("NODOS_SDK_DIR")
+def get_api_version(sdk_dir, api_header, api_name):
     if sdk_dir is None or sdk_dir == "":
         logger.error("NODOS_SDK_DIR is not set.")
         exit(1)
@@ -195,7 +200,7 @@ def make_release(args):
     shutil.rmtree("Stage")
 
 
-def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run):
+def upload_releases(sdk_dir, repo_url, org_name, repo_name, cloned_release_repo, dry_run):
     repo_org_name = f"{org_name}/{repo_name}"
     # Collect zip files under "./Releases"
     zip_files = []
@@ -224,10 +229,10 @@ def upload_releases(repo_url, org_name, repo_name, cloned_release_repo, dry_run)
         release_zip_download_url = f"{repo_url}/releases/download/{tag}/{filename}"
         release_info = { "version": module_version, "url": release_zip_download_url }
         if module_name in MODULES["plugins"]:
-            release_info["plugin_api_version"] = get_api_version("PluginAPI.h", "PLUGIN")
+            release_info["plugin_api_version"] = get_api_version(sdk_dir, "PluginAPI.h", "PLUGIN")
         elif module_name in MODULES["subsystems"]:
             if not ("file_only_subsystem" in MODULES["subsystems"][module_name] and MODULES["subsystems"][module_name]["file_only_subsystem"]):
-                release_info["subsystem_api_version"] = get_api_version("SubsystemAPI.h", "SUBSYSTEM")
+                release_info["subsystem_api_version"] = get_api_version(sdk_dir, "SubsystemAPI.h", "SUBSYSTEM")
 
         index["releases"].insert(0, release_info)
         with open(f"{module_name}/index.json", "w") as f:
@@ -286,7 +291,8 @@ if __name__ == "__main__":
     if args.command == "make":
         make_release(args)
     elif args.command == "upload":
-        upload_releases(args.repo_url,
+        upload_releases(args.sdk_dir,
+                        args.repo_url,
                         args.repo_org,
                         args.repo_name,
                         args.cloned_release_repo_dir,
