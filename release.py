@@ -212,6 +212,8 @@ def upload_releases(sdk_dir, repo_url, org_name, repo_name, cloned_release_repo,
     logger.info(f"GitHub Release: Pushing release artifacts to repo {repo_org_name}")
     artifacts = zip_files
 
+    sdk_dir = os.path.abspath(sdk_dir)
+
     for artifact in artifacts:
         os.chdir(cloned_release_repo)
 
