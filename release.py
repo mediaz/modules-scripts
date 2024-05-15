@@ -291,7 +291,7 @@ if __name__ == "__main__":
     if args.command == "make":
         make_release(args)
     elif args.command == "upload":
-        upload_releases(args.sdk_dir,
+        upload_releases(args.nodos_sdk_dir,
                         args.repo_url,
                         args.repo_org,
                         args.repo_name,
