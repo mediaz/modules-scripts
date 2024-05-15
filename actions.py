@@ -57,6 +57,11 @@ parser.add_argument('--scripts-dir',
                     required=True,
                     help="Directory of the scripts.")
 
+parser.add_argument('--nodos-sdk-dir',
+                    action='store',
+                    required=False,
+                    help="The path to the Nodos SDK directory.")
+
 MODULES = {}
 
 def custom_run(args, dry_run):
@@ -191,7 +196,7 @@ if __name__ == "__main__":
     # Upload releases
     logger.info(f"Uploading releases of modules {modules_to_release} to {args.repo_url}")
     re = custom_run(["python", f"{args.scripts_dir}/release.py", "upload", "--cloned-release-repo", args.cloned_release_repo_dir, 
-              "--repo-url", args.repo_url, "--repo-org", args.repo_org, "--repo-name", args.repo_name],
+              "--repo-url", args.repo_url, "--repo-org", args.repo_org, "--repo-name", args.repo_name, "--nodos-sdk-dir", args.nodos_sdk_dir],
              args.dry_run)
     if re.returncode != 0:
         logger.error(f"Failed to upload releases")
