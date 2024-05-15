@@ -82,7 +82,7 @@ def get_api_version(sdk_dir, api_header, api_name):
         exit(1)
     nos_api_h = os.path.join(sdk_dir, "include", "Nodos", api_header)
     if not os.path.exists(nos_api_h):
-        logger.error("NODOS_SDK_DIR is not set correctly.")
+        logger.error(f"Unable to find {api_header} in {sdk_dir}/include/Nodos")
         exit(1)
     with open(nos_api_h, "r") as f:
         major = None
